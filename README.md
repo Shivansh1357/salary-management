@@ -5,9 +5,10 @@ employees across multiple countries** and answer the question _"how do we pay
 people?"_ — replacing spreadsheets. Built for the Incubyte "Software
 Craftsperson Node/TypeScript/ReactJS — II" assessment.
 
-> **Live demo:** _API_ → `<render-url>` · _Web_ → `<vercel-url>` (filled in after deploy)
+> **Live demo:** [**Web app**](https://salary-web-0377.onrender.com) · [API health](https://salary-api-seny.onrender.com/api/health)
+> _(Render free tier — the API may take ~50s to wake on the first request after it idles.)_
 >
-> **Screenshots:** [`docs/screenshots/`](docs/screenshots) · **Demo video:** `<link>`
+> **Screenshots:** [`docs/screenshots/`](docs/screenshots) · **Demo video:** `<add your Loom/Drive link>`
 
 ![Employees](docs/screenshots/employees-page.png)
 

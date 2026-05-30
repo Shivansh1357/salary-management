@@ -17,10 +17,20 @@ export interface AppDeps {
  * Builds the Express app from injected services. Services are passed in (rather
  * than constructed here) so tests can wire real repositories to a test database.
  */
+/**
+ * Build the cors options: no origins → permissive default; an explicit "*" →
+ * reflect any origin; otherwise allow exactly the listed origins.
+ */
+function corsOptions(origins?: string[]) {
+  if (!origins?.length) return undefined;
+  if (origins.includes("*")) return { origin: true };
+  return { origin: origins };
+}
+
 export function createApp({ employeeService, analyticsService, corsOrigins }: AppDeps): Express {
   const app = express();
 
-  app.use(cors(corsOrigins?.length ? { origin: corsOrigins } : undefined));
+  app.use(cors(corsOptions(corsOrigins)));
   app.use(express.json());
 
   app.get("/api/health", (_req, res) => {
