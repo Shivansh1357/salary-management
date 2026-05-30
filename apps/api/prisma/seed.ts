@@ -9,6 +9,14 @@ const BATCH_SIZE = 1_000;
 const prisma = new PrismaClient();
 
 async function main() {
+  // Idempotent for deploys: only seed an empty database unless forced, so a
+  // restart in production preserves any edits a reviewer has made.
+  const existing = await prisma.employee.count();
+  if (existing > 0 && process.env.FORCE_SEED !== "true") {
+    console.log(`Database already has ${existing.toLocaleString()} employees — skipping seed.`);
+    return;
+  }
+
   console.log(`Seeding ${COUNT.toLocaleString()} employees…`);
   await prisma.employee.deleteMany();
 
