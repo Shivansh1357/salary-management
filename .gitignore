@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Database (SQLite) — seeded locally, not committed
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+apps/api/prisma/*.db
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Coverage / test artifacts
+coverage/
+.vitest/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Vercel / Render local
+.vercel/
+
+# --- Assessment-private (NOT for the public submission repo) ---
+# The submission guide is for the candidate's eyes only; reviewers should not see it.
+SUBMISSION.md
+# The original assessment brief (don't republish Incubyte's document)
+Salary Management Assessment.docx
