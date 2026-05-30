@@ -36,6 +36,9 @@ npm-debug.log*
 # Vercel / Render local
 .vercel/
 
+# Playwright MCP scratch output
+.playwright-mcp/
+
 # --- Assessment-private (NOT for the public submission repo) ---
 # The submission guide is for the candidate's eyes only; reviewers should not see it.
 SUBMISSION.md
