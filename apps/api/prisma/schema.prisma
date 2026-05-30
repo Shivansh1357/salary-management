@@ -1,0 +1,40 @@
+// SQLite + Prisma — see ADR 0002. Money is stored as integer minor units
+// (cents) in `baseSalary` — see ADR 0005.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id             String   @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String   @unique
+  department     String
+  jobTitle       String
+  level          String
+  country        String
+  currency       String
+  baseSalary     Int // integer minor units (cents) in the native currency
+  // Denormalized USD-normalized salary, computed at write time so org-wide
+  // analytics aggregate in one currency via SQL — see ADR 0003.
+  baseSalaryUsdMinor Int
+  employmentType String
+  hireDate       String // ISO date (YYYY-MM-DD)
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Indexes on every filter/sort column — see ADR 0004.
+  @@index([department])
+  @@index([country])
+  @@index([level])
+  @@index([status])
+  @@index([lastName])
+  @@index([baseSalaryUsdMinor])
+}

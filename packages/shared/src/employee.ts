@@ -45,6 +45,8 @@ export type UpdateEmployeeInput = z.infer<typeof updateEmployeeSchema>;
 export const employeeSchema = createEmployeeSchema.extend({
   id: z.string(),
   status: z.enum(EMPLOYEE_STATUSES),
+  /** USD-normalized salary in minor units, computed server-side (ADR 0003). */
+  baseSalaryUsdMinor: z.number().int(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
