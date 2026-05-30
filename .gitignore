@@ -14,6 +14,9 @@ build/
 *.sqlite3
 apps/api/prisma/*.db
 
+# Generated production Postgres schema (built from schema.prisma at deploy time)
+apps/api/prisma/schema.pg.prisma
+
 # Env
 .env
 .env.local

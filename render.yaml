@@ -1,34 +1,50 @@
-# Render blueprint for the Salary Management API (SQLite on a persistent disk).
-# Deploy: New + → Blueprint → point at this repo. Set CORS_ORIGIN to the
-# deployed web URL once Vercel is live. See SUBMISSION.md for the full walkthrough.
+# Render blueprint for the Salary Management stack.
+#   - salary-api : Node web service (Express), Postgres via DATABASE_URL
+#   - salary-web : static site (Vite build of the React app)
+# Local dev + tests use SQLite; production uses Postgres. The Postgres schema is
+# generated from the canonical SQLite schema at build time (no model drift).
+# Set secrets (DATABASE_URL, VITE_API_URL, CORS_ORIGIN) in the dashboard or via
+# the API — they are intentionally not committed. See SUBMISSION.md.
 services:
   - type: web
     name: salary-api
     runtime: node
     plan: free
-    region: oregon
+    region: singapore
     rootDir: .
-    # --prod=false so prisma/tsx/tsup (devDeps) are available for build + start.
-    # tsup inlines @salary/shared into the bundle, so it needs no separate build.
     buildCommand: >-
       corepack enable &&
       pnpm install --frozen-lockfile --prod=false &&
-      pnpm --filter @salary/api db:generate &&
+      node apps/api/prisma/generate-pg-schema.mjs &&
+      pnpm --filter @salary/api exec prisma generate --schema prisma/schema.pg.prisma &&
+      pnpm --filter @salary/api exec prisma db push --schema prisma/schema.pg.prisma --skip-generate &&
       pnpm --filter @salary/api build
-    # Apply migrations, seed if empty, then start the compiled server.
+    # Seed is idempotent (skips a non-empty DB); start the compiled server.
     startCommand: >-
-      pnpm --filter @salary/api exec prisma migrate deploy &&
       pnpm --filter @salary/api exec tsx prisma/seed.ts &&
       node apps/api/dist/server.js
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
-        value: file:/var/data/prod.db
+        sync: false # Neon Postgres connection string (salary_db)
+      - key: CORS_ORIGIN
+        sync: false # the deployed web URL
       - key: PORT
         value: "10000"
-      - key: CORS_ORIGIN
-        sync: false # set to your Vercel web URL, e.g. https://salary-web.vercel.app
-    disk:
-      name: sqlite-data
-      mountPath: /var/data
-      sizeGB: 1
+
+  - type: web
+    name: salary-web
+    runtime: static
+    rootDir: .
+    buildCommand: >-
+      corepack enable &&
+      pnpm install --frozen-lockfile --prod=false &&
+      pnpm --filter @salary/web build
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false # the deployed salary-api URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
