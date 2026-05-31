@@ -5,11 +5,12 @@ import {
   Button,
   Center,
   Group,
-  LoadingOverlay,
+  Loader,
   Modal,
   Pagination,
   Paper,
   Select,
+  Skeleton,
   Stack,
   Table,
   Text,
@@ -39,6 +40,7 @@ import {
 import { useState } from "react";
 import { type EmployeesQuery, useDeleteEmployee, useEmployees } from "../api/employees.js";
 import { EmployeeFormModal } from "../components/EmployeeFormModal.js";
+import { EmployeeTableSkeleton } from "../components/EmployeeTableSkeleton.js";
 import { countryName, employmentTypeLabel } from "../lib/labels.js";
 import { formatMoney, formatUsdMinor } from "../lib/money.js";
 
@@ -79,7 +81,7 @@ export function EmployeesPage() {
     pageSize: PAGE_SIZE,
   };
 
-  const { data, isLoading, isError, error, isPlaceholderData } = useEmployees(query);
+  const { data, isLoading, isError, error, isFetching } = useEmployees(query);
   const deleteMutation = useDeleteEmployee();
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
@@ -125,9 +127,16 @@ export function EmployeesPage() {
       <Group justify="space-between">
         <div>
           <Title order={2}>Employees</Title>
-          <Text c="dimmed" size="sm">
-            {data ? `${data.total.toLocaleString()} matching employees` : "Loading…"}
-          </Text>
+          <Group gap="xs" h={22}>
+            {data ? (
+              <Text c="dimmed" size="sm">
+                {data.total.toLocaleString()} matching employees
+              </Text>
+            ) : (
+              <Skeleton height={12} width={160} />
+            )}
+            {isFetching && data && <Loader size="xs" />}
+          </Group>
         </div>
         <Button leftSection={<IconPlus size={16} />} onClick={openCreate}>
           Add employee
@@ -187,13 +196,13 @@ export function EmployeesPage() {
       </Paper>
 
       <Paper withBorder radius="md" pos="relative">
-        <LoadingOverlay visible={isLoading || (isPlaceholderData && !data)} />
-
         {isError ? (
           <Alert color="red" icon={<IconAlertTriangle size={16} />} m="md">
             Could not load employees: {error instanceof Error ? error.message : "unknown error"}
           </Alert>
-        ) : data && data.data.length === 0 ? (
+        ) : isLoading || !data ? (
+          <EmployeeTableSkeleton />
+        ) : data.data.length === 0 ? (
           <Center mih={240}>
             <Stack align="center" gap={4}>
               <IconUsersGroup size={36} opacity={0.4} />
